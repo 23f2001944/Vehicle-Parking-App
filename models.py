@@ -4,6 +4,7 @@ from datetime import datetime
 
 db = SQLAlchemy(app)
 
+#users table
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -11,8 +12,11 @@ class User(db.Model):
     name = db.Column(db.String(64), nullable=True)
     passhash = db.Column(db.String(256), nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
+
+    # Relationship: One user -> Many reservations
     reservations = db.relationship('Reservation', backref='user', lazy=True)
 
+#parking_lots table
 class ParkingLot(db.Model):
     __tablename__ = 'parking_lots'
     id = db.Column(db.Integer, primary_key=True)
@@ -21,15 +25,21 @@ class ParkingLot(db.Model):
     pin_code = db.Column(db.String(6), nullable=False)
     price_per_hour = db.Column(db.Float, nullable=False)
     max_spots = db.Column(db.Integer, nullable=False)
+
+    # Relationship: One lot -> Many spots
     spots = db.relationship('ParkingSpot', backref='lot', lazy=True)
 
+#parking_spots table
 class ParkingSpot(db.Model):
     __tablename__ = 'parking_spots'
     id = db.Column(db.Integer, primary_key=True)
     lot_id = db.Column(db.Integer, db.ForeignKey('parking_lots.id'), nullable=False)
-    status = db.Column(db.Boolean, nullable=False, default=True)
+    status = db.Column(db.Boolean, nullable=False, default=True)    #True -> Available, False -> Occupied
+
+    # Relationship: One spot -> Many reservations (over the time)
     reservations = db.relationship('Reservation', backref='spot', lazy=True)
 
+#reservations table
 class Reservation(db.Model):
     __tablename__ = 'reservations'
     id = db.Column(db.Integer, primary_key=True)
