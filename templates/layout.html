@@ -14,9 +14,27 @@
     {% endblock %}
 </head>
 <body>
+    <nav class="navbar bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" width="30" height="30" class="d-inline-block align-top me-2">
+        Parking System Application
+        </a>
+    </div>
+    </nav>
     {% if show_navbar %}
         {% include 'navbar.html' %}
     {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{category}} darken" role="alert">
+            {{message}}
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
 
     <div class="container">
     {% block content %}
