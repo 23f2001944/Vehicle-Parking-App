@@ -8,7 +8,9 @@
     <h1 class="display-1">
         Hello {{user.username}}!
     </h1>
-    <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+    <div class="profile-pic">
+        <img src="https://api.dicebear.com/6.x/lorelei/svg?seed={{ user.username }}" width=100 alt="">
+    </div>
 
     <!--form to change password and username-->
     <form action="" method="post" class="form">
