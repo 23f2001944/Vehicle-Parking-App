@@ -1,0 +1,42 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Delete Parking Lot
+{% endblock %}
+
+{% block content %}
+
+<h1 class="display-1">Delete Parking Lot</h1><br>
+<div class="alert alert-warning" role="alert">
+    <i class="fa-solid fa-triangle-exclamation me-2"></i>
+    Are you sure you want to delete <strong>Parking Lot {{ parking_lot.id }}</strong>
+    <span class="text-muted">@{{ parking_lot.prime_location_name }}</span>?
+</div>
+<div class="card m-4 shadow p-1">
+    <div class="card-header">
+        <h5 class="mb-0">Lot Details</h5>
+    </div>
+    <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Address:</strong> {{ parking_lot.address }}</li>
+            <li class="list-group-item"><strong>Pin Code:</strong> {{ parking_lot.pin_code }}</li>
+            <li class="list-group-item"><strong>Price per Hour:</strong> ₹{{ parking_lot.price_per_hour }}</li>
+            <li class="list-group-item"><strong>Max Spots:</strong> {{ parking_lot.max_spots }}</li>
+        </ul>
+    </div>
+</div>
+<form action="" method="post" class="form">
+  <div class="d-flex justify-content-center gap-5 mt-4">
+    <button type="submit" class="btn btn-danger w-18">
+      <i class="fas fa-trash me-2"></i>
+      Delete
+    </button>
+    <a href="{{ url_for('admin') }}" class="btn btn-primary w-18">
+        <i class="fa-solid fa-xmark"></i>
+        Cancel
+    </a>
+  </div>
+</form>
+    
+
+{% endblock %}

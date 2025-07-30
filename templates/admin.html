@@ -1,0 +1,53 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Admin Dashboard
+{% endblock %}
+
+{% block content %}
+    <h1 class="display-1">Admin Dashboard</h1><br>
+    <a href="{{ url_for('add_parkinglot') }}" class="btn btn-success">
+        <i class="fas fa-plus me-2"></i>
+        Add Parking Lot
+    </a>
+
+    <h2 class="display-5 mt-4">
+        Parking Lots
+    </h2><br>
+
+    <div class="row">
+        {% for lot in parking_lots %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3 class="card-title">
+                        Parking Lot {{ lot.id }} 
+                        <span class="text-muted">@{{ lot.prime_location_name }}</span>
+                    </h3>
+                    <p class="card-text">
+                        <strong>Address:</strong> {{ lot.address[:40] }}...<br>
+                        <strong>Pin Code:</strong> {{ lot.pin_code }}<br>
+                        <strong>Capacity:</strong> {{ lot.max_spots }} spot(s)<br>
+                        <strong>Rate:</strong> ₹{{ lot.price_per_hour }}/hr
+                    </p>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <a href="{{ url_for('edit_parkinglot', lot_id=lot.id) }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-edit me-2"></i>
+                        Edit
+                    </a>
+                    <a href="{{ url_for('show_parkingspot', lot_id=lot.id) }}" class="btn btn-sm btn-secondary">
+                        <i class="fa-solid fa-bars me-2"></i>
+                        Details
+                    </a>
+                    <a href="{{ url_for('delete_parkinglot', lot_id=lot.id) }}" class="btn btn-sm btn-danger">
+                        <i class="fas fa-trash me-2"></i>
+                        Delete
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

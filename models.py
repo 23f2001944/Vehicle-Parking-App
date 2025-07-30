@@ -28,7 +28,7 @@ class ParkingLot(db.Model):
     max_spots = db.Column(db.Integer, nullable=False)
 
     # Relationship: One lot -> Many spots
-    spots = db.relationship('ParkingSpot', backref='lot', lazy=True)
+    spots = db.relationship('ParkingSpot', backref='lot', lazy=True, cascade="all, delete-orphan")  #deletes child entries if the parent entry gets deleted (parking lot -> parking spot)
 
 #parking_spots table
 class ParkingSpot(db.Model):
@@ -57,7 +57,7 @@ with app.app_context():
     #check if admin exists, else create one
     admin = User.query.filter_by(is_admin=True).first()
     if not admin:
-        password_hash = generate_password_hash('admin')
+        password_hash = generate_password_hash('admin@123')
         admin = User(username='admin', name='admin', passhash=password_hash, is_admin=True)
         db.session.add(admin)
         db.session.commit()
