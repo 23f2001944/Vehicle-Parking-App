@@ -5,10 +5,18 @@
 {% endblock %}
 
 {% block content %}
-<h1 class="display-4 mb-4">
-    <strong>Parking Spots in Lot {{ parking_lot.id }} </strong>
-    <span class="text-muted">@{{ parking_lot.prime_location_name }}</span>
-</h1>
+<div class="heading">
+    <h1 class="display-4 mb-4">
+        <strong>Parking Spots in Lot {{ parking_lot.id }} </strong>
+        <span class="text-muted">@{{ parking_lot.prime_location_name }}</span>
+    </h1>
+    <h4>
+        <i>
+            <u><strong>Available Spots:</strong></u>
+            <span class="text-muted"> {{available}}/{{all_spots}}</span>
+        </i>
+    </h4>
+</div>
 
 {% for spot in spots %}
     <div class="card mb-3">
@@ -40,5 +48,17 @@
         Back
     </a>
 </div>
+
+{% endblock %}
+
+{% block style %}
+
+<style>
+    .heading{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
 
 {% endblock %}

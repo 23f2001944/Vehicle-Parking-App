@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Admin Summary
+{% endblock %}
+
+{% block content %}
+<h1 class="display-4">Admin Dashboard Summary</h1>
+<hr>
+
+<div class="container my-4">
+    <div class="alert alert-info" role="alert">
+        <i class="fa-solid fa-chart-simple"></i>
+        Total Revenue: <span class="text-muted">₹{{ total_revenue }}</span>
+    </div>
+    
+
+    <div class="row mt-5">
+        <div class="col-md-6 d-flex flex-column align-items-center">
+            <h5 class="mb-3 text-primary">Revenue from Each Parking Lot</h5>
+            <div class="card shadow p-3">
+                <img src="{{ url_for('static', filename='images/revenue_chart.png') }}" class="img-fluid rounded" alt="Revenue Chart" style="max-height: 300px;">
+            </div>
+        </div>
+        <div class="col-md-6 d-flex flex-column align-items-center">
+            <h5 class="mb-3 text-success">Total vs Available Spots</h5>
+            <div class="card shadow p-3">
+                <img src="{{ url_for('static', filename='images/spots_chart.png') }}" class="img-fluid rounded" alt="Spots Chart" style="max-height: 300px;">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

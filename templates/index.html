@@ -1,5 +1,63 @@
 {% extends 'layout.html' %}
 
+{% block title %}
+    User Dashboard
+{% endblock %}
+
 {% block content %}
-    This is the content of Index file
+    <h1 class="display-1">User Dashboard</h1>
+
+    <h2 class="display-5 mt-4">
+        Book You Parking Spot...
+    </h2><br>
+
+    <div class="row">
+        {% for lot in parking_lots %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3 class="card-title">
+                        Parking Lot {{ lot.id }} 
+                        <span class="text-muted">@{{ lot.prime_location_name }}</span>
+                    </h3>
+                    <p class="card-text">
+                        <strong>Address:</strong> {{ lot.address[:40] }}...<br>
+                        <strong>Pin Code:</strong> {{ lot.pin_code }}<br>
+                        <strong>Capacity:</strong> {{ availability[lot.id] }}/{{ lot.max_spots }} spot(s)<br>
+                        <strong>Rate:</strong> ₹{{ lot.price_per_hour }}/hr
+                    </p>
+                </div>
+                <div class="card-footer d-flex justify-content-center">
+                    <!--Button triggers a modal-->
+                    <a href="#" class="btn btn-sm btn-primary {% if availability[lot.id] == 0 %}disabled{% endif %}" 
+                    data-bs-toggle="modal" data-bs-target="#bookModal{{ lot.id }}">
+                        <i class="fa-solid fa-bookmark"></i> Book Spot
+                    </a>
+                </div>
+                <!--Modal-->
+                <div class="modal fade" id="bookModal{{ lot.id }}" tabindex="-1" aria-labelledby="modalLabel{{ lot.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <form method="POST" action="{{ url_for('book_spot_post', lot_id=lot.id) }}">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h5 class="modal-title" id="modalLabel{{ lot.id }}">Book Parking Spot</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                            <p>Enter your vehicle number to confirm reservation:</p>
+                            <input type="text" name="vehicle_number" class="form-control" required>
+                            </div>
+                            <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">Confirm Booking</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
 {% endblock %}

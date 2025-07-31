@@ -5,11 +5,13 @@
 {% endblock %}
 
 {% block content %}
-    <h1 class="display-1">
-        Hello {{user.username}}!
-    </h1>
-    <div class="profile-pic">
-        <img src="https://api.dicebear.com/6.x/lorelei/svg?seed={{ user.username }}" width=100 alt="">
+    <div class="heading">
+        <h1 class="display-1">
+            Hello {{user.username}}!
+        </h1>
+        <div class="profile-pic">
+            <img src="https://api.dicebear.com/6.x/lorelei/svg?seed={{ user.username }}" alt="">
+        </div>
     </div>
 
     <!--form to change password and username-->
@@ -32,4 +34,23 @@
         </div><br>
         <input type="submit" value="Update" class="btn btn-primary">
     </form>
+{% endblock %}
+
+{% block style %}
+
+<style>
+    .heading{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .profile-pic{
+        width: 90px;
+        height: 90px;
+        border: 3px solid purple;
+        border-radius: 50%;
+        overflow: hidden;
+    }
+</style>
+
 {% endblock %}

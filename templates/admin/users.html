@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    User Management
+{% endblock %}
+
+{% block content %}
+<h1 class="display-4 mb-4">Registered Users</h1>
+
+<table class="table table-bordered table-hover shadow">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Full Name</th>
+            <th>Role</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.name or "--"}}</td>
+            <td>
+                {% if user.is_admin %}
+                    <span class="badge bg-danger">Admin</span>
+                {% else %}
+                    <span class="badge bg-secondary">User</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

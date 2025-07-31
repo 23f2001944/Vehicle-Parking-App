@@ -17,9 +17,26 @@
             <li class="nav-item mx-2">
                 <a class="nav-link active" href="{{ url_for('index') }}">Dashboard</a>
             </li>
-            <li class="nav-item mx-2">
-                <a class="nav-link active" href="#">Reservations</a>
-            </li>
+            <!-- Admin-specific links -->
+            {% if session['is_admin'] %}
+                <li class="nav-item mx-2">
+                    <a class="nav-link active" href="{{ url_for('user_details') }}">Lists of Users</a>
+                </li>
+                <li class="nav-item mx-2">
+                    <a class="nav-link active" href="{{ url_for('reservation_history') }}">Reservations History</a>
+                </li>
+                <li class="nav-item mx-2">
+                    <a class="nav-link active" href="{{ url_for('admin_summary') }}">Summary</a>
+                </li>
+            <!-- User-specific links -->
+            {% else %}
+                <li class="nav-item mx-2">
+                    <a class="nav-link active" href="{{ url_for('show_bookings') }}">Current Bookings</a>
+                </li>
+                <li class="nav-item mx-2">
+                    <a class="nav-link active" href="{{ url_for('history') }}">Booking History</a>
+                </li>
+            {% endif %}
             <li class="nav-item mx-2">
                 <a class="nav-link active" href="{{ url_for('profile') }}">Profile</a>
             </li>

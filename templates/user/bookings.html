@@ -1,0 +1,63 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Current Bookings Page
+{% endblock %}
+
+{% block content %}
+    <h1 class="display-1">Check Your Current Bookings...</h1>
+
+    <h2 class="display-5 mt-4">
+        Parking Lots
+    </h2><br>
+
+    <div class="row">
+        {% for reservation in reservations %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3 class="card-title">
+                        Parking Lot {{ reservation.spot.lot.id }} 
+                        <span class="text-muted">@{{ reservation.spot.lot.prime_location_name }}</span>
+                    </h3>
+                    <p class="card-text">
+                        <strong>Bookin ID:</strong> {{ reservation.id }}<br>
+                        <strong>Spot ID:</strong> {{ reservation.spot_id }}<br>
+                        <strong>Parking Timestamp:</strong> {{ reservation.parking_timestamp.strftime("%Y-%m-%d %H:%M:%S") }}<br>
+                        <strong>Rate:</strong> ₹{{ reservation.spot.lot.price_per_hour }}/hr<br>
+                        <strong>Vehicle:</strong> {{ reservation.vehicle_number }}
+                    </p>
+                </div>
+                <div class="card-footer d-flex justify-content-center">
+                    <!-- Trigger Modal -->
+                    <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal{{ reservation.id }}">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        Park Out
+                    </button>
+                </div>
+                <!-- Modal -->
+                <div class="modal fade" id="confirmModal{{ reservation.id }}" tabindex="-1" aria-labelledby="confirmModalLabel{{ reservation.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                    <form action="{{ url_for('show_booking_post', booking_id=reservation.id) }}" method="post">
+                        <div class="modal-header">
+                        <h5 class="modal-title">Confirm Park Out</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                        Pay the required amount to confirm parking out.
+                        </div>
+                        <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Pay & Park Out</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

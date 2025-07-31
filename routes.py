@@ -3,6 +3,10 @@ from flask import render_template, redirect, request, url_for, flash, session
 from models import db, User, ParkingLot, ParkingSpot, Reservation
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+from datetime import datetime
+import matplotlib.pyplot as plt
+import os
+import re
     
 @app.route('/login')
 def login():
@@ -28,6 +32,7 @@ def login_post():
         return redirect(url_for('login'))
 
     session['user_id'] = user.id
+    session['is_admin'] = user.is_admin
     flash("Login successful!", category="success")
     return redirect(url_for('index'))
 
@@ -100,7 +105,83 @@ def index():
     user = User.query.get(session['user_id'])
     if user.is_admin:
         return redirect(url_for('admin'))
-    return render_template('index.html')
+    parking_lots = ParkingLot.query.all()
+    availability = {}
+    for lot in parking_lots:
+        available = ParkingSpot.query.filter_by(lot_id=lot.id, status=True).count()
+        availability[lot.id] = available
+    return render_template('index.html', parking_lots=parking_lots, availability=availability)
+
+@app.route('/book/<int:lot_id>', methods=['POST'])
+@auth_required
+def book_spot_post(lot_id):
+    user_id = session.get('user_id')
+    vehicle_number = request.form.get('vehicle_number')
+
+    #Check vehicle number format
+    pattern = r"^[A-Z]{2}\d{2}[A-Z]{0,2}\d{4}$"
+    if not re.match(pattern, vehicle_number.upper()):
+        flash("Invalid vehicle number format. Example: MH12AB1234", category="danger")
+        return redirect(url_for('index'))
+
+    available_spot = ParkingSpot.query.filter_by(lot_id=lot_id, status=True).first()
+    if not available_spot:
+        flash("No available spots.", category="danger")
+        return redirect(url_for('index'))
+
+    # Create reservation
+    new_reservation = Reservation(
+        spot_id=available_spot.id,
+        user_id=user_id,
+        vehicle_number=vehicle_number,
+        parking_timestamp=datetime.now()
+    )
+    available_spot.status = False  # Mark as occupied
+    db.session.add(new_reservation)
+    db.session.commit()
+    
+    flash("Spot booked successfully!", category="success")
+    return redirect(url_for('index'))
+
+@app.route('/bookings')
+@auth_required
+def show_bookings():
+    reservations = Reservation.query.filter_by(user_id=session['user_id'], leaving_timestamp=None).all()
+    return render_template('user/bookings.html', reservations=reservations)
+
+@app.route('/booking/<int:booking_id>', methods=['POST'])
+@auth_required
+def show_booking_post(booking_id):
+    reservation = Reservation.query.filter_by(id=booking_id, user_id=session['user_id']).first()
+    if not reservation:
+        flash("Booking not found or unauthorized.", category="danger")
+        return redirect(url_for('show_bookings'))
+
+    if reservation.leaving_timestamp is not None:
+        flash("This booking has already been completed.", category="info")
+        return redirect(url_for('show_bookings'))
+
+    reservation.leaving_timestamp = datetime.now()    # Set leaving time
+
+    # Calculate cost
+    parked_duration = (reservation.leaving_timestamp - reservation.parking_timestamp).total_seconds() / 3600
+    parked_hours = round(parked_duration, 2)
+    rate = reservation.spot.lot.price_per_hour
+    reservation.parking_cost = round(parked_hours * rate, 2)
+
+    # Mark the spot as available again (True -> Available)
+    reservation.spot.status = True
+
+    db.session.commit()
+    flash(f"Parked out successfully! ₹{reservation.parking_cost} has been charged.", category="success")
+    return redirect(url_for('index'))
+
+@app.route('/history')
+@auth_required
+def history():
+    reservations = Reservation.query.filter_by(user_id=session['user_id']).order_by(Reservation.parking_timestamp.desc()).all()
+    money_spent = sum(r.parking_cost for r in reservations if r.parking_cost is not None)
+    return render_template('user/history.html', reservations=reservations, money_spent=money_spent)
     
 @app.route('/profile')
 @auth_required
@@ -133,7 +214,7 @@ def profile_post():
 
     if new_password:
         user.passhash = generate_password_hash(new_password)
-        
+
     db.session.commit()
     flash("Your profile is updated succesfully!", category="info")
     return redirect(url_for('profile'))
@@ -202,7 +283,9 @@ def show_parkingspot(lot_id):
         flash("This parking lot does not exist.", category='danger')
         return redirect(url_for('admin'))
     spots = ParkingSpot.query.filter_by(lot_id=lot_id).all()
-    return render_template('parkinglot/show.html', parking_lot=parking_lot, spots=spots)
+    all_spots = ParkingSpot.query.filter_by(lot_id=lot_id).count()
+    available = ParkingSpot.query.filter_by(lot_id=lot_id, status=True).count()
+    return render_template('parkinglot/show_spots.html', parking_lot=parking_lot, spots=spots, all_spots=all_spots, available=available)
 
 @app.route('/parkinglot/<int:lot_id>/edit')
 @admin_required
@@ -316,3 +399,61 @@ def show_spotdetails(spot_id):
         flash("This spot is currently available. No reservation details to show.", category="info")
         return redirect(url_for('admin'))
     return render_template('parkinglot/spotdetails.html')
+
+@app.route('/userdetails')
+@admin_required
+def user_details():
+    users = User.query.all()
+    return render_template('admin/users.html', users=users)
+
+@app.route('/reservations')
+@admin_required
+def reservation_history():
+    reservations = Reservation.query.order_by(Reservation.parking_timestamp.desc()).all()
+    total_revenue = sum(r.parking_cost for r in reservations if r.parking_cost is not None)
+    return render_template('admin/reservations.html', reservations=reservations, total_revenue=total_revenue)
+
+@app.route('/summary')
+@admin_required
+def admin_summary(): 
+    parking_lots = ParkingLot.query.all()
+    lot_names, revenues, total_spots, available_spots = [], [], [], []
+
+    for lot in parking_lots:
+        lot_names.append(f"Lot {lot.id}")
+        lot_revenue = sum(
+            res.parking_cost or 0
+            for spot in lot.spots
+            for res in spot.reservations
+        )
+        revenues.append(lot_revenue)
+        total_spots.append(len(lot.spots))
+        available_spots.append(sum(1 for spot in lot.spots if spot.status))
+
+    # Generate charts
+    if not os.path.exists('static/images'):
+        os.makedirs('static/images')
+
+    plt.figure(figsize=(8, 5))
+    plt.bar(lot_names, revenues, color='skyblue')
+    plt.title('Revenue from Each Parking Lot')
+    plt.xlabel('Parking Lot')
+    plt.ylabel('Revenue (₹)')
+    plt.tight_layout()
+    plt.savefig('static/images/revenue_chart.png')
+    plt.close()
+
+    plt.figure(figsize=(8, 5))
+    x = range(len(lot_names))
+    plt.bar(x, total_spots, label='Total Spots', color='lightgray')
+    plt.bar(x, available_spots, label='Available Spots', color='green')
+    plt.xticks(x, lot_names)
+    plt.title('Total vs Available Spots')
+    plt.xlabel('Parking Lot')
+    plt.ylabel('Number of Spots')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('static/images/spots_chart.png')
+    plt.close()
+
+    return render_template("admin/summary.html", total_revenue=sum(revenues))
