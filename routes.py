@@ -395,10 +395,21 @@ def show_spotdetails(spot_id):
     if not parking_spot:
         flash("This parking spot does not exist.", category='danger')
         return redirect(url_for('admin'))
-    if parking_spot.status == True:  # True -> available
+
+    if parking_spot.status:  # True -> available
         flash("This spot is currently available. No reservation details to show.", category="info")
         return redirect(url_for('admin'))
-    return render_template('parkinglot/spotdetails.html')
+
+    # Fetch active reservation (not parked out yet)
+    reservation = Reservation.query.filter_by(spot_id=spot_id, leaving_timestamp=None).first()
+    if not reservation:
+        flash("No active reservation found for this spot.", category="warning")
+        return redirect(url_for('admin'))
+    
+    user = User.query.get(reservation.user_id)
+
+    return render_template('parkinglot/spotdetails.html', spot=parking_spot, reservation=reservation, user=user)
+
 
 @app.route('/userdetails')
 @admin_required

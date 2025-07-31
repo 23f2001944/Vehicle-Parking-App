@@ -20,7 +20,7 @@
             <!-- Admin-specific links -->
             {% if session['is_admin'] %}
                 <li class="nav-item mx-2">
-                    <a class="nav-link active" href="{{ url_for('user_details') }}">Lists of Users</a>
+                    <a class="nav-link active" href="{{ url_for('user_details') }}">List of Users</a>
                 </li>
                 <li class="nav-item mx-2">
                     <a class="nav-link active" href="{{ url_for('reservation_history') }}">Reservations History</a>

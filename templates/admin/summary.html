@@ -9,9 +9,10 @@
 <hr>
 
 <div class="container my-4">
-    <div class="alert alert-info" role="alert">
+    <div class="alert alert-info fs-5" role="alert">
         <i class="fa-solid fa-chart-simple"></i>
-        Total Revenue: <span class="text-muted">₹{{ total_revenue }}</span>
+        <strong>Total Revenue: </strong>
+        <span class="text-muted">₹{{ '%.2f' | format(total_revenue)  }}</span>
     </div>
     
 

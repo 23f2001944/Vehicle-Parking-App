@@ -7,50 +7,59 @@
 {% block content %}
 <h1 class="display-4 mb-4">Reservation History</h1>
 
-<div class="table-responsive">
-    <table class="table table-bordered table-hover align-middle">
-        <thead class="table-dark">
-            <tr>
-                <th>Reservation ID</th>
-                <th>Spot ID</th>
-                <th>Username</th>
-                <th>Vehicle Number</th>
-                <th>Parking Timestamp</th>
-                <th>Leaving Timestamp</th>
-                <th>Parking Cost (₹)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for r in reservations %}
-            <tr>
-                <td>{{ r.id }}</td>
-                <td>{{ r.spot_id }}</td>
-                <td>{{ r.user.username }}</td>
-                <td>{{ r.vehicle_number }}</td>
-                <td>{{ r.parking_timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                <td>
-                    {% if r.leaving_timestamp %}
-                        {{ r.leaving_timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
-                    {% else %}
-                        <span class="text-warning fw-bold">Still Parked</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if r.parking_cost %}
-                        ₹{{ r.parking_cost }}
-                    {% else %}
-                        —
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+{% if reservations %}
+    <div class="table-responsive shadow">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Reservation ID</th>
+                    <th>Lot ID</th>
+                    <th>Spot ID</th>
+                    <th>Vehicle Number</th>
+                    <th>Parking Timestamp</th>
+                    <th>Leaving Timestamp</th>
+                    <th>Parking Cost (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in reservations %}
+                <tr>
+                    <td>{{ r.id }}</td>
+                    <td>{{ r.spot.lot_id }}</td>
+                    <td>{{ r.spot_id }}</td>
+                    <td>{{ r.vehicle_number }}</td>
+                    <td>{{ r.parking_timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>
+                        {% if r.leaving_timestamp %}
+                            {{ r.leaving_timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                        {% else %}
+                            <span class="text-warning fw-bold">Still Parked</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if r.parking_cost %}
+                            ₹{{ r.parking_cost }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-<div class="text-end mt-3">
-    <h4><i><u>Total Money Spent:</u> 
-        <span class="text-muted">₹{{ money_spent }}</span>
-    </i></h4>
-</div>
+    <div class="text-end mt-3">
+        <h4><i><u>Total Money Spent:</u> 
+            <span class="text-muted">₹{{ '%.2f' | format(money_spent)  }}</span>
+        </i></h4>
+    </div>
+
+{% else %}
+    <div class="alert alert-info fs-4" role="alert">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+        You have no history of booking.
+    </div>
+{%endif%}
+
 {% endblock %}

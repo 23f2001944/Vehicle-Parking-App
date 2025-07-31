@@ -12,9 +12,10 @@
     </h2><br>
 
     <div class="row">
+    {% if reservations %}
         {% for reservation in reservations %}
         <div class="col-md-4 mb-4">
-            <div class="card h-100">
+            <div class="card h-100 shadow">
                 <div class="card-body">
                     <h3 class="card-title">
                         Parking Lot {{ reservation.spot.lot.id }} 
@@ -58,6 +59,12 @@
             </div>
         </div>
         {% endfor %}
+        {% else %}
+            <div class="alert alert-info fs-4" role="alert">
+                <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                You have no current booking to show.
+            </div>
+        {% endif %}
     </div>
 
 {% endblock %}
